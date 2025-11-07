@@ -1,28 +1,41 @@
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react';
+import Navbar from './components/Navbar';
+import HomePage from './components/HomePage';
+import Courses from './components/Courses';
+import CourseDetail from './components/CourseDetail';
+import Dashboard from './components/Dashboard';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [route, setRoute] = useState('home');
+  const [selected, setSelected] = useState(null);
+  const [search, setSearch] = useState('');
+
+  const handleOpenCourse = useCallback((course) => {
+    setSelected(course);
+    setRoute('course');
+  }, []);
+
+  const handleEnroll = useCallback((course) => {
+    alert(`Enrolled in ${course.title}!`);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+      <Navbar onNavigate={setRoute} onSearch={setSearch} />
+      {route === 'home' && (
+        <HomePage onOpenCourse={handleOpenCourse} onExplore={() => setRoute('courses')} />
+      )}
+      {route === 'courses' && <Courses onOpenCourse={handleOpenCourse} />}
+      {route === 'course' && (
+        <div className="mt-4">
+          <CourseDetail course={selected} onBack={() => setRoute('courses')} onEnroll={handleEnroll} />
         </div>
-      </div>
-    </div>
-  )
-}
+      )}
+      {route === 'dashboard' && <Dashboard />}
 
-export default App
+      <footer className="mt-16 border-t border-neutral-200 dark:border-neutral-800 py-10 text-center text-sm text-neutral-600 dark:text-neutral-400">
+        <div className="max-w-7xl mx-auto px-4">© {new Date().getFullYear()} EduVerse — Learn, build, grow.</div>
+      </footer>
+    </div>
+  );
+}
